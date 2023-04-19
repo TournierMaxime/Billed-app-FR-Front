@@ -6,8 +6,8 @@ export default class NewBill {
     this.document = document
     this.onNavigate = onNavigate
     this.store = store
-    const formNewBill = this.document.querySelector(`form[data-testid="form-new-bill"]`)
-    formNewBill.addEventListener("submit", this.handleSubmit)
+    this.formNewBill = this.document.querySelector(`form[data-testid="form-new-bill"]`)
+    this.formNewBill.addEventListener("submit", this.handleSubmit)
     const file = this.document.querySelector(`input[data-testid="file"]`)
     file.addEventListener("change", this.handleChangeFile)
     this.fileUrl = null
@@ -15,16 +15,30 @@ export default class NewBill {
     this.billId = null
     new Logout({ document, localStorage, onNavigate })
   }
+
+  handleFileType({target}){
+    const {type} = target.files[0]
+    target.setCustomValidity("")
+    if(/^image\/(jpe?g|png)$/.test(type) === false){
+      target.setCustomValidity("Formats acceptés : jpg, jpeg et png")
+      target.reportValidity()
+      target.value = null
+      this.isFileValid = false
+      return false
+    }
+    this.isFileValid = true
+  }
+
   handleChangeFile = e => {
     e.preventDefault()
-    const file = this.document.querySelector(`input[data-testid="file"]`).files[0]
+    const isFileTypeValid = this.handleFileType(e)
+    if(isFileTypeValid === false) return
     const filePath = e.target.value.split(/\\/g)
     const fileName = filePath[filePath.length-1]
     const formData = new FormData()
     const email = JSON.parse(localStorage.getItem("user")).email
-    formData.append('file', file)
+    formData.append('file', e.target.files[0])
     formData.append('email', email)
-
     this.store
       .bills()
       .create({
@@ -34,7 +48,6 @@ export default class NewBill {
         }
       })
       .then(({fileUrl, key}) => {
-        console.log(fileUrl)
         this.billId = key
         this.fileUrl = fileUrl
         this.fileName = fileName
@@ -42,7 +55,7 @@ export default class NewBill {
   }
   handleSubmit = e => {
     e.preventDefault()
-    console.log('e.target.querySelector(`input[data-testid="datepicker"]`).value', e.target.querySelector(`input[data-testid="datepicker"]`).value)
+    if(!this.isFileValid) return
     const email = JSON.parse(localStorage.getItem("user")).email
     const bill = {
       email,
