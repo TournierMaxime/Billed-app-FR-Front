@@ -7,7 +7,7 @@ export default () => {
       ${VerticalLayout(120)}
       <div class='content'>
         <div class='content-header'>
-          <div class='content-title'> Envoyer une note de frais </div>
+          <div class='content-title'>Envoyer une note de frais</div>
         </div>
         <div class="form-newbill-container content-inner">
           <form data-testid="form-new-bill">
