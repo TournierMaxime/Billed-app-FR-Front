@@ -38,6 +38,7 @@ export default class {
             try {
               return {
                 ...doc,
+                originalDate: doc.date,
                 date: formatDate(doc.date),
                 status: formatStatus(doc.status)
               }
@@ -51,6 +52,10 @@ export default class {
                 status: formatStatus(doc.status)
               }
             }
+          }).sort((a, b) => {
+            const dateA = new Date(a.originalDate)
+            const dateB = new Date(b.originalDate)
+            return dateB - dateA
           })
         return bills
       })
